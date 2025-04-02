@@ -122,6 +122,12 @@ export class CalculatorComponent implements OnInit {
         case '=':
           PREVIEW_ELEMENT.value = '';
           INPUT_ELEMENT.value = this.addFigure(String(this.math(PREV_SYMBOL, parseFloat(this.delFigure(value)))));
+          // 小数点第8未満を切り捨て
+          if (INPUT_ELEMENT.value.includes('.') && INPUT_ELEMENT.value.split('.')[1].length > 9) {
+              let parts = INPUT_ELEMENT.value.split('.');
+              parts[1] = parts[1].substring(0, 8);
+              INPUT_ELEMENT.value = parts.join('.');
+          }
           // STACK = 0;
           PREV_SYMBOL = text;
           HAS_CALCULATED = true;
