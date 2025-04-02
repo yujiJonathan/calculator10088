@@ -93,7 +93,8 @@ export class CalculatorComponent implements OnInit {
           ((event.currentTarget as HTMLLinkElement).parentElement as HTMLDivElement).classList.add(
             'select'
           );
-          if (value === '') {
+          if (value.split('.')[0].length > 13 || value === '') {
+            this.removeSelect();
             return;
           } else {
             STACK = parseFloat(this.delFigure(value));
@@ -169,7 +170,7 @@ export class CalculatorComponent implements OnInit {
     }
   };
 
-  // 一文字削除
+  // remove select
   removeSelect = (): void => {
     const buttonContainer: HTMLDivElement = document.getElementById('buttons') as HTMLDivElement;
     const buttons: HTMLLinkElement[] = (buttonContainer.getElementsByTagName(
@@ -181,7 +182,7 @@ export class CalculatorComponent implements OnInit {
     }
   };
 
-  // リセット
+  // reset
   reset = (): void => {
     INPUT_ELEMENT.value = '0';
     PREVIEW_ELEMENT.value = '';
@@ -190,7 +191,7 @@ export class CalculatorComponent implements OnInit {
     HAS_CALCULATED = true;
   };
 
-  // 加算
+  // add
   addNumber = (num: string): void => {
     const integerPart: string = INPUT_ELEMENT.value.split('.')[0];
     const decimalPart: string = INPUT_ELEMENT.value.split('.')[1];
