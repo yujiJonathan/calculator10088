@@ -155,7 +155,7 @@ export class CalculatorComponent implements OnInit {
           if (result !== null || result !== undefined) {
             result = 'error';
           } else {
-            if (result > 10 * 14) {
+            if (result > 10 * 13) {
               result = 'overflow';
             } else {
               STACK = result as number;
@@ -169,6 +169,7 @@ export class CalculatorComponent implements OnInit {
     }
   };
 
+  // 一文字削除
   removeSelect = (): void => {
     const buttonContainer: HTMLDivElement = document.getElementById('buttons') as HTMLDivElement;
     const buttons: HTMLLinkElement[] = (buttonContainer.getElementsByTagName(
@@ -180,6 +181,7 @@ export class CalculatorComponent implements OnInit {
     }
   };
 
+  // リセット
   reset = (): void => {
     INPUT_ELEMENT.value = '0';
     PREVIEW_ELEMENT.value = '';
@@ -188,13 +190,15 @@ export class CalculatorComponent implements OnInit {
     HAS_CALCULATED = true;
   };
 
+  // 加算
   addNumber = (num: string): void => {
-    if (INPUT_ELEMENT.value.length < 14) {
+    // 桁数指定
+    if (INPUT_ELEMENT.value.length < 13) {
       INPUT_ELEMENT.value = this.addFigure(INPUT_ELEMENT.value + num);
     }
   };
 
-  /** 計算用 */
+  // 計算用
   math = (symbol: string, num: number): number | void => {
     switch (symbol) {
       case '÷':
