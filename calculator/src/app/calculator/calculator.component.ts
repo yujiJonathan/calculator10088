@@ -192,8 +192,16 @@ export class CalculatorComponent implements OnInit {
 
   // 加算
   addNumber = (num: string): void => {
-    // 桁数指定
-    if (INPUT_ELEMENT.value.length < 13) {
+    const integerPart: string = INPUT_ELEMENT.value.split('.')[0];
+    const decimalPart: string = INPUT_ELEMENT.value.split('.')[1];
+    // 少数部分: 最大8桁
+    if (INPUT_ELEMENT.value.indexOf('.') !== -1) {
+      if (decimalPart.length < 8) {
+      INPUT_ELEMENT.value = this.addFigure(INPUT_ELEMENT.value + num);
+      }
+    }
+    // 整数部分: 最大13桁
+    else if (integerPart.length < 13) {
       INPUT_ELEMENT.value = this.addFigure(INPUT_ELEMENT.value + num);
     }
   };
