@@ -123,11 +123,7 @@ export class CalculatorComponent implements OnInit {
           PREVIEW_ELEMENT.value = '';
           INPUT_ELEMENT.value = this.addFigure(String(this.math(PREV_SYMBOL, parseFloat(this.delFigure(value)))));
           // 小数点第8未満を切り捨て
-          if (INPUT_ELEMENT.value.includes('.') && INPUT_ELEMENT.value.split('.')[1].length > 9) {
-              let parts = INPUT_ELEMENT.value.split('.');
-              parts[1] = parts[1].substring(0, 8);
-              INPUT_ELEMENT.value = parts.join('.');
-          }
+          this.truncateDecimals(INPUT_ELEMENT);
           // STACK = 0;
           PREV_SYMBOL = text;
           HAS_CALCULATED = true;
@@ -155,6 +151,7 @@ export class CalculatorComponent implements OnInit {
             INPUT_ELEMENT.value = '';
           }
           PREVIEW_ELEMENT.value = this.addFigure(String(result));
+          this.truncateDecimals(PREVIEW_ELEMENT);
           break;
         default:
           this.addNumber(text);
@@ -168,10 +165,11 @@ export class CalculatorComponent implements OnInit {
               STACK = result as number;
             }
           }
-          PREVIEW_ELEMENT.value = this.addFigure(String(result));
+          // PREVIEW_ELEMENT.value = this.addFigure(String(result));
           PREVIEW_ELEMENT.value = this.addFigure(
             String(this.math(PREV_SYMBOL, parseFloat(this.delFigure(INPUT_ELEMENT.value))))
           );
+          this.truncateDecimals(PREVIEW_ELEMENT);
       }
     }
   };
@@ -228,4 +226,13 @@ export class CalculatorComponent implements OnInit {
         return;
     }
   };
+
+  // truncate decimals
+  private truncateDecimals(htmlInputElement: HTMLInputElement) {
+    if (htmlInputElement.value.includes('.') && htmlInputElement.value.split('.')[1].length > 9) {
+      let parts = htmlInputElement.value.split('.');
+      parts[1] = parts[1].substring(0, 8);
+      htmlInputElement.value = parts.join('.');
+    }
+  }
 }
