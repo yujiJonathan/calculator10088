@@ -9,5 +9,5 @@ import { CalculatorComponent } from '../app/calculator/calculator.component'
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'calculator';
+  // non method
 }

@@ -1,6 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+let INPUT_ELEMENT: HTMLInputElement;
+let PREVIEW_ELEMENT: HTMLInputElement;
+let PREV_SYMBOL: string;
+let HAS_CALCULATED: boolean = true;
+let STACK: number;
 
 @Component({
   selector: 'app-calculator',
@@ -8,73 +14,199 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './calculator.component.html',
   styleUrl: './calculator.component.css'
 })
-export class CalculatorComponent {
-  // properties
-  title = 'Calculator';
-  display = '';
-
-  // add num to display
-  appendInput(value: string): void {
-    if (this.display.length >= 12) return;
-
-    this.display += value;
+export class CalculatorComponent implements OnInit {
+  // initializetion
+  ngOnInit(): void {
+    this.handleOnLoad();
   }
 
-  // clear display
-  clear(): void {
-    this.display = '';
-  }
-
-  // calculate
-  calculateEvent(): void {
-    if (this.display.trim() === '') return;
-
-    try {
-      // 最後の文字が演算子かどうかをチェック
-      const lastChar = this.display.slice(-1);
-      const isOperator = /[+\-×÷]$/.test(lastChar);
-      // × を * に、÷ を / に置換
-      const expression = this.display.replace(/×/g, '*').replace(/÷/g, '/');
-
-      // 演算子で終わる場合は計算せず,そのまま返す
-      if (isOperator) return;
-
-      // const result = evaluate(expression).toString();
-      const result = eval(expression);
-
-      // if (result.indexOf('.')) {
-      //   this.display = this.truncateDecimal(result, 8);
-      // } else {
-      //   this.display = this.truncateInteger(result, 12);
-      // }
-
-      this.display = result;
-    } catch(e) {
-      this.display = '';
+  addFigure(numVal: string): string {
+    // 空の場合そのまま返却
+    if (numVal == '') {
+      return '';
     }
-  }
-
-  // max decimal : 8
-  // // [WIP]小数点最大値8位まで表示する処理↓
-  private truncateDecimal(value: string, maxDecimal: number): string {
-    const decimal = value.indexOf('.');
-    if (decimal === -1) return value;
-    const integerPart = value.substring(0, decimal + 1);
-    const decimalPart = value.substring(decimal + 1, decimal + 1 + maxDecimal);
-
-    return integerPart + decimalPart;
-  }
-
-  // max integer：12
-      // [WIP]10億の桁まで計算可能にする処理
-  private truncateInteger(value: string, maxInteger: number): string {
-    const integerPart = value.split('.')[0];
-    if (integerPart.length > maxInteger) {
-
-      return integerPart.substring(0, maxInteger);
-
+    // 全角から半角へ変換し、既にカンマが入力されていたら事前に削除
+    numVal = numVal.replace(/,/g, '').trim();
+    // 数値でなければそのまま返却
+    if (!/^[+|-]?(\d*)(\.\d*)?$/.test(numVal)) {
+      return numVal;
     }
-
-    return value;
+    // 整数部分と小数部分に分割
+    const numData: string[] = numVal.toString().split('.');
+    // 整数部分を3桁カンマ区切りへ
+    numData[0] = Number(numData[0])
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    // 小数部分と結合して返却
+    return numData.join('.');
   }
+
+  delFigure(strVal: string): string {
+    return strVal.replace(/,/g, '');
+  }
+
+  handleOnLoad = () => {
+    INPUT_ELEMENT = document.getElementById('input') as HTMLInputElement;
+    PREVIEW_ELEMENT = document.getElementById('preview') as HTMLInputElement;
+    const deleteButton: HTMLDivElement = document.getElementById('circle') as HTMLDivElement;
+    const buttonContainer: HTMLDivElement = document.getElementById('buttons') as HTMLDivElement;
+    const buttons: HTMLLinkElement[] = (buttonContainer.getElementsByTagName(
+      'a'
+    ) as unknown) as HTMLLinkElement[];
+  
+    for (let i: number = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener('click', this.handleOnButtonClick);
+    }
+    deleteButton.addEventListener('click', this.handleOnDeleteClick);
+  };
+
+  handleOnDeleteClick = (): void => {
+    let value: string = INPUT_ELEMENT.value;
+    value = value.slice(0, -1);
+    INPUT_ELEMENT.value = this.addFigure(value);
+  };
+
+  handleOnButtonClick = (event: MouseEvent): void => {
+    let value: string = INPUT_ELEMENT.value;
+    let text: string = (event.currentTarget as HTMLLinkElement).textContent!.replace(/\s+/g, '');
+    if (value === 'overFlow') {
+      return;
+    }
+    if (HAS_CALCULATED) {
+      //初期化された状態
+      switch (text) {
+        case 'C':
+          this.reset();
+          break;
+        case '.':
+          if (value.indexOf('.') === -1) {
+            INPUT_ELEMENT.value += '.';
+          }
+          break;
+        case '=':
+          break;
+        case '÷':
+        case '×':
+        case '-':
+        case '+':
+          this.removeSelect();
+          ((event.currentTarget as HTMLLinkElement).parentElement as HTMLDivElement).classList.add(
+            'select'
+          );
+          if (value === '') {
+            return;
+          } else {
+            STACK = parseFloat(this.delFigure(value));
+            PREV_SYMBOL = text;
+            PREVIEW_ELEMENT.value = value;
+            INPUT_ELEMENT.value = '';
+            HAS_CALCULATED = false;
+          }
+          break;
+        default:
+          this.addNumber(text);
+      }
+    } else {
+      let result: number | string | void;
+      switch (text) {
+        case 'C':
+          this.reset();
+          this.removeSelect();
+          break;
+        case '.':
+          if (value.indexOf('.') === -1) {
+            INPUT_ELEMENT.value += '.';
+          }
+          break;
+        case '=':
+          PREVIEW_ELEMENT.value = '';
+          INPUT_ELEMENT.value = this.addFigure(String(this.math(PREV_SYMBOL, parseFloat(this.delFigure(value)))));
+          // STACK = 0;
+          PREV_SYMBOL = text;
+          HAS_CALCULATED = true;
+          this.removeSelect();
+          // TODO: inputElementの削除アニメーション作成
+          break;
+        case '÷':
+        case '×':
+        case '-':
+        case '+':
+          this.removeSelect();
+          ((event.currentTarget as HTMLLinkElement).parentElement as HTMLDivElement).classList.add(
+            'select'
+          );
+          if (value === '') {
+            PREV_SYMBOL = text;
+            break;
+          }
+          result = this.math(PREV_SYMBOL, parseFloat(this.delFigure(value)));
+          if (result === null || result === undefined) {
+            result = 'error';
+          } else {
+            STACK = result as number;
+            PREV_SYMBOL = text;
+            INPUT_ELEMENT.value = '';
+          }
+          PREVIEW_ELEMENT.value = this.addFigure(String(result));
+          break;
+        default:
+          this.addNumber(text);
+          result = this.math(PREV_SYMBOL, parseFloat(this.delFigure(value)));
+          if (result !== null || result !== undefined) {
+            result = 'error';
+          } else {
+            if (result > 10 * 14) {
+              result = 'overflow';
+            } else {
+              STACK = result as number;
+            }
+          }
+          PREVIEW_ELEMENT.value = this.addFigure(String(result));
+          PREVIEW_ELEMENT.value = this.addFigure(
+            String(this.math(PREV_SYMBOL, parseFloat(this.delFigure(INPUT_ELEMENT.value))))
+          );
+      }
+    }
+  };
+
+  removeSelect = (): void => {
+    const buttonContainer: HTMLDivElement = document.getElementById('buttons') as HTMLDivElement;
+    const buttons: HTMLLinkElement[] = (buttonContainer.getElementsByTagName(
+      'div'
+    ) as unknown) as HTMLLinkElement[];
+  
+    for (let i: number = 0; i < buttons.length; i++) {
+      buttons[i].classList.remove('select');
+    }
+  };
+
+  reset = (): void => {
+    INPUT_ELEMENT.value = '0';
+    PREVIEW_ELEMENT.value = '';
+    STACK = 0;
+    PREV_SYMBOL = '';
+    HAS_CALCULATED = true;
+  };
+
+  addNumber = (num: string): void => {
+    if (INPUT_ELEMENT.value.length < 14) {
+      INPUT_ELEMENT.value = this.addFigure(INPUT_ELEMENT.value + num);
+    }
+  };
+
+  /** 計算用 */
+  math = (symbol: string, num: number): number | void => {
+    switch (symbol) {
+      case '÷':
+        return STACK / num;
+      case '×':
+        return STACK * num;
+      case '-':
+        return STACK - num;
+      case '+':
+        return STACK + num;
+      default:
+        return;
+    }
+  };
 }
