@@ -1,2 +1,47 @@
-<p>calculator works!</p>
-<app-calculator></app-calculator>
+<!-- src/app/calculator/calculator.html -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2>{{ title }}</h2>
+
+                    <input type="text" class="form-control mb-3 text-right" [(ngModel)]="display">
+
+                    <div class="btn-group d-flex mb-2 position-relative" role="group">
+                        <button class="btn btn-danger w-100" (click)="clear()">C</button>
+                        <button class="btn btn-success w-100" (click)="appendInput('÷')">÷</button>
+                    </div>
+
+                    <div class="btn-group d-flex mb-2" role="group">
+                        <button class="btn btn-light w-100" (click)="appendInput('7')">7</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('8')">8</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('9')">9</button>
+                        <button class="btn btn-success w-100" (click)="appendInput('×')">×</button>
+                    </div>
+
+                    <div class="btn-group d-flex mb-2" role="group">
+                        <button class="btn btn-light w-100" (click)="appendInput('4')">4</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('5')">5</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('6')">6</button>
+                        <button class="btn btn-success w-100" (click)="appendInput('-')">-</button>
+                    </div>
+
+                    <div class="btn-group d-flex mb-2" role="group">
+                        <button class="btn btn-light w-100" (click)="appendInput('1')">1</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('2')">2</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('3')">3</button>
+                        <button class="btn btn-success w-100" (click)="appendInput('+')">+</button>
+                    </div>
+
+                    <div class="btn-group d-flex mb-2" role="group">
+                        <button class="btn btn-light w-100" (click)="appendInput('0')">0</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('00')">00</button>
+                        <button class="btn btn-light w-100" (click)="appendInput('.')">.</button>
+                        <button class="btn btn-primary w-100" (click)="calculateEvent()">=</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
