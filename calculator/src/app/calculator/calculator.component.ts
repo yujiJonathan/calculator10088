@@ -64,7 +64,7 @@ export class CalculatorComponent implements OnInit {
     let value: string = INPUT_ELEMENT.value;
     value = value.slice(0, -1);
     INPUT_ELEMENT.value = this.addFigure(value);
-    if (INPUT_ELEMENT.value === '' || isNaN(Number(INPUT_ELEMENT.value))) {
+    if (INPUT_ELEMENT.value === '') {
       INPUT_ELEMENT.value = '0';
     }
   };
