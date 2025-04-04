@@ -10,5 +10,4 @@ import { CalculatorComponent } from '../app/calculator/calculator.component'
 })
 export class AppComponent {
   // non method
-  // test
 }
