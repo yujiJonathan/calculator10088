@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CalculatorComponent } from '../app/calculator/calculator.component'
+import { CalculatorComponent } from '../app/calculator/calculator.component' // calculator
 
 @Component({
   selector: 'app-root',
@@ -9,5 +9,5 @@ import { CalculatorComponent } from '../app/calculator/calculator.component'
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  // non method
+
 }
